@@ -427,12 +427,11 @@ EOF
     fix_ld_path
     set_timezone
     service debian start
+    init_chroot_users
     install_apt_packages
 
     # Accessing the dbus socket doesn't work if /var/run is a symlink
     [ -L ${chroot_path}/var/run ] && unlink ${chroot_path}/var/run
-    
-    init_chroot_users
 }
 
 uninstall_chroot_base()
