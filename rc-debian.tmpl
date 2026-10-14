@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# PROVIDE: ubuntu
+# PROVIDE: debian
 # REQUIRE: archdep mountlate
 # KEYWORD: nojail
 #
@@ -8,19 +8,19 @@
 #
 . /etc/rc.subr
 
-name="ubuntu"
-desc="Enable Ubuntu chroot, and Linux ABI"
-rcvar="ubuntu_enable"
+name="debian"
+desc="Enable debian chroot, and Linux ABI"
+rcvar="debian_enable"
 start_cmd="${name}_start"
 stop_cmd=":"
 
 unmounted()
 {
-	[ `stat -f "%d" "$1"` == `stat -f "%d" "$1/.."` -a \
-	  `stat -f "%i" "$1"` != `stat -f "%i" "$1/.."` ]
+    [ "$(stat -f "%d" "$1")" = "$(stat -f "%d" "$1/..")" ] &&
+    [ "$(stat -f "%i" "$1")" != "$(stat -f "%i" "$1/..")" ]
 }
 
-ubuntu_start()
+debian_start()
 {
 	local _emul_path _tmpdir
 
