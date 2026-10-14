@@ -284,7 +284,7 @@ uninstall_firefox()
     do_chroot "apt remove -y firefox"
 }
 
-install_firefox_devedition()
+install_firefoxdevedition()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
     do_chroot 'curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o /etc/apt/keyrings/packages.mozilla.org.asc'
@@ -294,7 +294,7 @@ install_firefox_devedition()
     do_chroot "apt install -y firefox-devedition"
 }
 
-uninstall_firefox_devedition()
+uninstall_firefoxdevedition()
 {
     do_chroot "apt remove -y firefox-devedition"
 }
@@ -396,8 +396,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <brave|chrome|edge|vivaldi|opera|firefox|firefox_devedition|floorp>"
-    echo "       $0 uninstall <brave|chrome|edge|vivaldi|opera|firefox|firefox_devedition|floorp>"
+    echo "Usage: $0 install <brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp>"
+    echo "       $0 uninstall <brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp>"
     echo "       $0 chroot <create|upgrade|delete>"
     exit 1
 }
@@ -414,7 +414,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case $2 in
-        brave|chrome|edge|vivaldi|opera|firefox|firefox_devedition|floorp)
+        brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp)
             browser=$2
             install_browser ${browser}
             exit 0
@@ -427,7 +427,7 @@ while [ $# -gt 0 ]; do
         ;;
     uninstall)
         case $2 in
-        brave|chrome|edge|vivaldi|opera|firefox|firefox_devedition|floorp)
+        brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp)
             browser=$2
             uninstall_browser ${browser}
             exit 0
