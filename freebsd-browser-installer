@@ -8,8 +8,10 @@ brave:/opt/brave.com/brave/brave
 opera:/usr/lib/x86_64-linux-gnu/opera-stable/opera
 edge:/opt/microsoft/msedge/microsoft-edge
 firefox:/usr/lib/firefox/firefox
-firefox-devedition:/usr/lib/firefox-devedition/firefox
+firefoxesr:/usr/lib/firefox/firefox
+firefoxdevedition:/usr/lib/firefox-devedition/firefox
 floorp:/usr/lib/floorp/floorp
+librewolf:/usr/lib/librewolf/librewolf
 END
 )
 
@@ -24,7 +26,7 @@ chroot_mount_points="
 
 prefix=/usr/local
 chroot_path=/compat/debian
-debian_version=bookworm
+debian_version=stable
 
 my_dir="$(dirname $(realpath $0))"
 bindir="${prefix}/bin"
@@ -154,9 +156,21 @@ install_chroot_wrapper()
     local binary_name=$(basename ${binary_path})
     local binary_dir=$(dirname ${binary_path})
     local target=${chroot_bindir}/${browser_name}
+    local tmpl_file
+
     [ -L ${target} ] && unlink ${target}
+
+    case "${browser_name}" in
+        firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
+            tmpl_file="${my_dir}/chroot-wrapper-firefox.tmpl"
+            ;;
+        *)
+            tmpl_file="${my_dir}/chroot-wrapper-chromium.tmpl"
+            ;;
+    esac
+
     sed -E "s|@BROWSER@|${binary_name}|g;s|@BROWSER_PATH@|${binary_dir}|g" \
-      < ${my_dir}/chroot-wrapper.tmpl > ${target}
+        < "${tmpl_file}" > ${target}
     chmod 555 ${target}
 }
 
@@ -210,7 +224,7 @@ install_chrome()
 
 uninstall_chrome()
 {
-    do_chroot "apt remove -y google-chrome-stable"
+    do_chroot "apt remove -y google-chrome-stable && apt autoremove -y && apt clean"
 }
 
 install_brave()
@@ -219,12 +233,12 @@ install_brave()
     do_chroot 'curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg'
     do_chroot 'curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources'
     do_chroot -i "apt update"
-    do_chroot "apt install -y brave-browser"
+    do_chroot "apt install -y brave-browser && apt autoremove -y && apt clean"
 }
 
 uninstall_brave()
 {
-    do_chroot "apt remove -y brave-browser"
+    do_chroot "apt remove -y brave-browser && apt autoremove -y && apt clean"
 }
 
 install_vivaldi()
@@ -233,12 +247,12 @@ install_vivaldi()
     do_chroot 'curl -fsSL https://repo.vivaldi.com/archive/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/vivaldi.gpg'
     do_chroot 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main" > /etc/apt/sources.list.d/vivaldi.list'
     do_chroot -i "apt update"
-    do_chroot "apt install -y vivaldi-stable"
+    do_chroot "apt install -y vivaldi-stable && apt autoremove -y && apt clean"
 }
 
 uninstall_vivaldi()
 {
-    do_chroot "apt remove -y vivaldi-stable"
+    do_chroot "apt remove -y vivaldi-stable && apt autoremove -y && apt clean"
 }
 
 install_edge()
@@ -252,7 +266,7 @@ install_edge()
 
 uninstall_edge()
 {
-    do_chroot "apt remove -y microsoft-edge-stable"
+    do_chroot "apt remove -y microsoft-edge-stable && apt autoremove -y && apt clean"
 }
 
 install_opera()
@@ -266,7 +280,7 @@ install_opera()
 
 uninstall_opera()
 {
-    do_chroot "apt remove -y opera-stable"
+    do_chroot "apt remove -y opera-stable && apt autoremove -y && apt clean"
 }
 
 install_firefox()
@@ -296,7 +310,22 @@ install_firefoxdevedition()
 
 uninstall_firefoxdevedition()
 {
-    do_chroot "apt remove -y firefox-devedition"
+    do_chroot "apt remove -y firefox-devedition && apt autoremove -y && apt clean"
+}
+
+install_firefoxesr()
+{
+    do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o /etc/apt/keyrings/packages.mozilla.org.asc'
+    do_chroot 'echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
+    do_chroot 'printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n" > /etc/apt/preferences.d/mozilla'
+    do_chroot -i "apt update"
+    do_chroot "apt install -y firefox-esr"
+}
+
+uninstall_firefoxesr()
+{
+    do_chroot "apt remove -y firefox-esr && apt autoremove -y && apt clean"
 }
 
 install_floorp()
@@ -309,7 +338,19 @@ install_floorp()
 
 uninstall_floorp()
 {
-    do_chroot "apt remove -y floorp"
+    do_chroot "apt remove -y floorp && apt autoremove -y && apt clean"
+}
+
+install_librewolf()
+{
+    do_chroot "apt update && apt install extrepo -y"
+    do_chroot "extrepo enable librewolf && extrepo update librewolf"
+    do_chroot "apt update && apt install librewolf -y"
+}
+
+uninstall_librewolf()
+{
+    do_chroot "apt remove -y librewolf && apt autoremove -y && apt clean"
 }
 
 set_timezone()
@@ -370,7 +411,7 @@ upgrade_chroot()
 {
     local flags="-q -y --allow-downgrades"
     flags="${flags} --allow-remove-essential --allow-change-held-packages"
-    do_chroot "apt-get update && apt upgrade ${flags}"
+    do_chroot "apt-get update && apt dist-upgrade ${flags}"
     fix_ld_path
 }
 
@@ -396,8 +437,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp>"
-    echo "       $0 uninstall <brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp>"
+    echo "Usage: $0 install <brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
+    echo "       $0 uninstall <brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
     echo "       $0 chroot <create|upgrade|delete>"
     exit 1
 }
@@ -414,7 +455,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case $2 in
-        brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp)
+        brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
             browser=$2
             install_browser ${browser}
             exit 0
@@ -427,7 +468,7 @@ while [ $# -gt 0 ]; do
         ;;
     uninstall)
         case $2 in
-        brave|chrome|edge|vivaldi|opera|firefox|firefoxdevedition|floorp)
+        brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
             browser=$2
             uninstall_browser ${browser}
             exit 0
