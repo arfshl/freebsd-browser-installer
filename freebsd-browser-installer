@@ -353,6 +353,20 @@ uninstall_librewolf()
     do_chroot "apt remove -y librewolf && apt autoremove -y && apt clean"
 }
 
+install_widevine()
+{
+    do_chroot 'install -d -m 0755 /compat/debian/usr/lib/WidevineCdm'
+    do_chroot 'curl -fsSL https://dl.google.com/linux/deb/pool/main/g/google-chrome-stable/google-chrome-stable_133.0.6943.53-1_amd64.deb -o /tmp/chrome.deb'
+    do_chroot 'cd /tmp && ar x chrome.deb && tar -xf data.tar.xz ./opt/google/chrome/WidevineCdm'
+    do_chroot 'cp -R /tmp/opt/google/chrome/WidevineCdm/* /usr/lib/WidevineCdm/'
+    do_chroot 'rm -rf /tmp/chrome.deb /tmp/control.tar.xz /tmp/data.tar.xz /tmp/debian-binary /tmp/opt'
+}
+
+uninstall_widevine()
+{
+    do_chroot 'rm -rf /usr/lib/WidevineCdm'
+}
+
 set_timezone()
 {
     printf "0.0 0 0.0\n0\nUTC\n" > ${chroot_path}/etc/adjtime
@@ -389,6 +403,16 @@ EOF
 
     # Accessing the dbus socket doesn't work if /var/run is a symlink
     [ -L ${chroot_path}/var/run ] && unlink ${chroot_path}/var/run
+    
+    do_chroot "groupadd --system messagebus"
+    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g messagebus messagebus"
+
+    do_chroot "groupadd --system polkitd"
+    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g polkitd polkitd"
+
+    do_chroot "groupadd --system _network || true"
+    do_chroot "groupadd --system systemd-network || true"
+    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g systemd-network systemd-network || true"
 }
 
 uninstall_chroot_base()
@@ -437,8 +461,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
-    echo "       $0 uninstall <brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
+    echo "Usage: $0 install <widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
+    echo "       $0 uninstall <widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
     echo "       $0 chroot <create|upgrade|delete>"
     exit 1
 }
@@ -455,7 +479,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case $2 in
-        brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
+        widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
             browser=$2
             install_browser ${browser}
             exit 0
@@ -468,7 +492,7 @@ while [ $# -gt 0 ]; do
         ;;
     uninstall)
         case $2 in
-        brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
+        widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
             browser=$2
             uninstall_browser ${browser}
             exit 0
