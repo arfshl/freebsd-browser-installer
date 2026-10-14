@@ -5,6 +5,7 @@ browser_list=$(cat << END
 chrome:/opt/google/chrome/chrome
 vivaldi:/opt/vivaldi/vivaldi
 brave:/opt/brave.com/brave/brave
+braveorigin:/opt/brave.com/brave-origin/brave-origin
 opera:/usr/lib/x86_64-linux-gnu/opera-stable/opera
 edge:/opt/microsoft/msedge/microsoft-edge
 firefox:/usr/lib/firefox/firefox
@@ -241,6 +242,20 @@ uninstall_brave()
     do_chroot "apt remove -y brave-browser && apt autoremove -y && apt clean"
 }
 
+install_braveorigin()
+{
+    do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg'
+    do_chroot 'curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources'
+    do_chroot -i "apt update"
+    do_chroot "apt install -y brave-origin && apt autoremove -y && apt clean"
+}
+
+uninstall_braveorigin()
+{
+    do_chroot "apt remove -y brave-origin && apt autoremove -y && apt clean"
+}
+
 install_vivaldi()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
@@ -461,8 +476,8 @@ uninstall_browser()
 
 usage()
 {
-    echo "Usage: $0 install <widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
-    echo "       $0 uninstall <widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
+    echo "Usage: $0 install <widevine|brave|braveorigin|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
+    echo "       $0 uninstall <widevine|brave|braveorigin|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf>"
     echo "       $0 chroot <create|upgrade|delete>"
     exit 1
 }
@@ -479,7 +494,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
     install)
         case $2 in
-        widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
+        widevine|brave|braveorigin|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
             browser=$2
             install_browser ${browser}
             exit 0
@@ -492,7 +507,7 @@ while [ $# -gt 0 ]; do
         ;;
     uninstall)
         case $2 in
-        widevine|brave|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
+        widevine|brave|braveorigin|chrome|edge|vivaldi|opera|firefox|firefoxesr|firefoxdevedition|floorp|librewolf)
             browser=$2
             uninstall_browser ${browser}
             exit 0
