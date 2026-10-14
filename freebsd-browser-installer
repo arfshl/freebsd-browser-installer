@@ -390,6 +390,19 @@ set_timezone()
     do_chroot -i "dpkg-reconfigure --frontend noninteractive tzdata"
 }
 
+init_chroot_users()
+{
+    do_chroot "groupadd --system messagebus 2>/dev/null || true"
+    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g messagebus messagebus 2>/dev/null || true"
+
+    do_chroot "groupadd --system polkitd 2>/dev/null || true"
+    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g polkitd polkitd 2>/dev/null || true"
+
+    do_chroot "groupadd --system _network 2>/dev/null || true"
+    do_chroot "groupadd --system systemd-network 2>/dev/null || true"
+    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g systemd-network systemd-network 2>/dev/null || true"
+}
+
 install_chroot_base()
 {
     [ -f ${chroot_path}/etc/os-release ] && return
@@ -419,15 +432,7 @@ EOF
     # Accessing the dbus socket doesn't work if /var/run is a symlink
     [ -L ${chroot_path}/var/run ] && unlink ${chroot_path}/var/run
     
-    do_chroot "groupadd --system messagebus"
-    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g messagebus messagebus"
-
-    do_chroot "groupadd --system polkitd"
-    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g polkitd polkitd"
-
-    do_chroot "groupadd --system _network || true"
-    do_chroot "groupadd --system systemd-network || true"
-    do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g systemd-network systemd-network || true"
+    init_chroot_users
 }
 
 uninstall_chroot_base()
