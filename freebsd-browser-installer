@@ -26,16 +26,16 @@ chroot_mount_points="
 "
 
 prefix=/usr/local
-chroot_path=/compat/ubuntu
-ubuntu_version=jammy
+chroot_path=/compat/debian
+debian_version=stable
 
 my_dir="$(dirname $(realpath $0))"
 bindir="${prefix}/bin"
 appsdir="${prefix}/share/applications"
 chroot_bindir="${chroot_path}/bin"
 
-apt_packages="gnupg pulseaudio ca-certificates apt-transport-https curl sudo wget"
-pkg_list="debootstrap pulseaudio ubuntu-keyring"
+apt_packages="gnupg pulseaudio ca-certificates apt-transport-https curl sudo wget nano gawk"
+pkg_list="curl debootstrap pulseaudio debian-keyring"
 
 export DEBIAN_FRONTEND=noninteractive
 export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
@@ -83,8 +83,8 @@ umount_chroot()
 
 install_rc()
 {
-    local tmpl="${my_dir}/rc-ubuntu.tmpl"
-    local target="${prefix}/etc/rc.d/ubuntu"
+    local tmpl="${my_dir}/rc-debian.tmpl"
+    local target="${prefix}/etc/rc.d/debian"
     sed -E "s#@CHROOT_PATH@#${chroot_path}#g" < ${tmpl} > ${target}
     chmod 555 ${target}
 }
@@ -370,11 +370,11 @@ uninstall_librewolf()
 
 install_widevine()
 {
-    do_chroot 'install -d -m 0755 /compat/ubuntu/usr/lib/WidevineCdm'
+    do_chroot 'install -d -m 0755 /compat/debian/usr/lib/WidevineCdm'
     do_chroot 'curl -fsSL https://dl.google.com/linux/deb/pool/main/g/google-chrome-stable/google-chrome-stable_133.0.6943.53-1_amd64.deb -o /tmp/chrome.deb'
     do_chroot 'cd /tmp && ar x chrome.deb && tar -xf data.tar.xz ./opt/google/chrome/WidevineCdm'
     do_chroot 'cp -R /tmp/opt/google/chrome/WidevineCdm/* /usr/lib/WidevineCdm/'
-    do_chroot 'rm -rf /tmp/chrome.deb /tmp/control.tar.xz /tmp/data.tar.xz /tmp/ubuntu-binary /tmp/opt'
+    do_chroot 'rm -rf /tmp/chrome.deb /tmp/control.tar.xz /tmp/data.tar.xz /tmp/debian-binary /tmp/opt'
 }
 
 uninstall_widevine()
@@ -392,6 +392,9 @@ set_timezone()
 
 init_chroot_users()
 {
+    do_chroot "mkdir -p /run/dbus"
+    do_chroot "service dbus start || true"
+
     do_chroot "groupadd --system messagebus 2>/dev/null || true"
     do_chroot "useradd --system --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin -g messagebus messagebus 2>/dev/null || true"
 
@@ -406,44 +409,32 @@ init_chroot_users()
 install_chroot_base()
 {
     [ -f ${chroot_path}/etc/os-release ] && return
-    
-    # 1. ALWAYS run debootstrap first so the root filesystem layout exists
-    install_packages
-    debootstrap --arch=amd64 --no-check-gpg ${ubuntu_version} ${chroot_path} http://archive.ubuntu.com/ubuntu/ || \
-        bail "debootstrap failed"
-
-    # 2. Set up directories, configurations, and RC scripts
     mk_mount_dirs
     install_rc
     sysrc linux_enable=NO
-    sysrc ubuntu_enable=YES
-
-    # 3. Fix the /var/run symlink BEFORE starting the service or DBus
-    # Accessing the dbus socket doesn't work if /var/run is a symlink
-    if [ -L ${chroot_path}/var/run ]; then
-        unlink ${chroot_path}/var/run
-        mkdir -p ${chroot_path}/var/run
-    fi
-
-    # 4. NOW start the service to safely mount linprocfs, linsysfs, and devfs over the chroot
-    service ubuntu start || bail "Failed to start ubuntu service"
-
-    # 5. Fix APT configuration and use correct Ubuntu repositories
+    sysrc debian_enable=YES
+    service debian start || bail "Failed to start debian service"
+    install_packages
+    debootstrap --arch=amd64 --no-check-gpg ${debian_version} ${chroot_path} || \
+        bail "debootstrap failed"
     echo "APT::Cache-Start 251658240;" > \
         ${chroot_path}/etc/apt/apt.conf.d/00aptitude
 
     :>${chroot_path}/etc/apt/sources.list
     cat > ${chroot_path}/etc/apt/sources.list <<EOF
-deb http://archive.ubuntu.com/ubuntu ${ubuntu_version} main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu ${ubuntu_version}-updates main restricted universe multiverse
-deb http://archive.ubuntu.com/ubuntu ${ubuntu_version}-security main restricted universe multiverse
+deb http://deb.debian.org/debian ${debian_version} main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian ${debian_version}-updates main contrib non-free non-free-firmware
+deb http://security.debian.org/debian-security ${debian_version}-security main contrib non-free non-free-firmware
 EOF
 
-    # 6. Finalize setup and install inside the now fully-mounted chroot
     fix_ld_path
     set_timezone
+    service debian start
     init_chroot_users
     install_apt_packages
+
+    # Accessing the dbus socket doesn't work if /var/run is a symlink
+    [ -L ${chroot_path}/var/run ] && unlink ${chroot_path}/var/run
 }
 
 uninstall_chroot_base()
@@ -458,8 +449,8 @@ uninstall_chroot_base()
     fi
     umount_chroot
     rm -rf "${path}"
-    rm -f "${prefix}/etc/rc.d/ubuntu"
-    sysrc -x ubuntu_enable
+    rm -f "${prefix}/etc/rc.d/debian"
+    sysrc -x debian_enable
 }
 
 upgrade_chroot()
