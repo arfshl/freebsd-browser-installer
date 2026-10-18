@@ -1,0 +1,78 @@
+# Firefox hw accel concept
+# based on https://github.com/freebsd/freebsd-ports/blob/main/www/linux-brave/files/brave-browser.in
+# because i run ghostbsd on vm i can't test this 
+
+gpu_detect()
+{
+	local emul node found=
+
+	for node in /dev/dri/renderD*; do
+		[ -w "$node" ] || continue
+		found=1
+		break
+	done
+	[ "$found" ] || return 1
+	emul=$( sysctl -n compat.linux.emul_path 2> /dev/null ) ||
+		return 1
+	set -- "$emul"/usr/lib64/dri/*_dri.so
+	[ -e "$1" ]
+}
+
+vulkan_detect()
+{
+	local emul icd found=
+
+	emul=$( sysctl -n compat.linux.emul_path 2> /dev/null ) ||
+		return 1
+	[ -e "$emul"/usr/lib64/libvulkan.so.1 ] || return 1
+	for icd in "$emul"/usr/share/vulkan/icd.d/*.json; do
+		[ -e "$icd" ] || continue
+		case "${icd##*/}" in
+		lvp_icd*) continue ;;
+		esac
+		found=1
+		break
+	done
+	[ "$found" ]
+}
+
+
+#
+# GPU: use hardware GL when the system can support it, software
+# rendering otherwise.  BRAVE_GPU=1 forces hardware GL, BRAVE_GPU=0
+# forces software rendering; unset selects by detection.
+#
+gpu=
+case "${FIREFOX_GPU:-auto}" in
+1|yes|YES|true|TRUE)
+    gpu=1
+    ;;
+auto)
+    gpu_detect && gpu=1
+    ;;
+esac
+	#
+	# Prefer ANGLE-on-Vulkan when a hardware Vulkan driver is
+	# present: GL command streams from the Linux Mesa drivers have
+	# proven prone to GPU hangs on some kernel driver pairings,
+	# while the Vulkan path drives the same hardware reliably.
+	# BRAVE_VULKAN=1 forces it, BRAVE_VULKAN=0 stays on GL; unset
+	# selects by detection.
+	#
+if [ "$gpu" ]; then
+    case "${FIREFOX_VULKAN:-auto}" in
+    1|yes|YES|true|TRUE)
+        export MOZ_WEBRENDER=1
+		export MOZ_ACCELERATED=1
+        ;;
+    auto)
+        if vulkan_detect; then
+            export MOZ_WEBRENDER=1
+			export MOZ_ACCELERATED=1
+        fi
+        ;;
+    esac
+else
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export MOZ_ACCELERATED=0
+fi
