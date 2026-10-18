@@ -34,12 +34,12 @@ braveorigin - Brave Origin
 chrome - Google Chrome
 edge - Microsoft Edge
 firefox - Mozilla Firefox
-firefoxesr - Mozilla Firefox
+firefoxesr - Mozilla Firefox ESR
 firefoxdevedition - Mozilla Firefox Developer Edition
-floorp - Floorp 
+floorp - Floorp Browser
 librewolf - Librewolf
 opera - Opera Browser
-vivaldi - Vivaldi
+vivaldi - Vivaldi Browser
 ```
 
 ### Usage
