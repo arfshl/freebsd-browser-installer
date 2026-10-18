@@ -2,6 +2,13 @@
 
 chroot_path=@CHROOT_PATH@
 
+if [ ! "${DBUS_SESSION_BUS_ADDRESS-}" ] &&
+   command -v dbus-run-session > /dev/null 2>&1
+then
+	exec dbus-run-session -- "$0" "$@"
+fi
+
+
 get_pa_sock_path()
 {
 	PA_SOCK_PATH=$(sockstat -uw | awk -v me="$(whoami)" -F'[ \t]+' '
