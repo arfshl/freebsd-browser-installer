@@ -44,6 +44,5 @@ exec 2> >(exec cat >&2)
 
 export CHROME_PATH="$HERE/@BROWSER@"
 export CHROME_WRAPPER="$(readlink -f "$0")"
-export LIBGL_DRI3_DISABLE=1
 
 "$HERE/@BROWSER@" --no-sandbox --no-zygote --password-store=basic --v=0 "$@" || true
