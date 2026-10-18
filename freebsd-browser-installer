@@ -360,6 +360,8 @@ uninstall_floorp()
 
 install_librewolf()
 {
+    do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'install -d -m 0755 /usr/share/keyrings'
     do_chroot "apt update && apt install extrepo -y"
     do_chroot "extrepo enable librewolf && extrepo update librewolf"
     do_chroot "apt update && apt install librewolf -y"
