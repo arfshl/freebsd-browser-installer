@@ -105,6 +105,16 @@ FreeBSD starter script (FreeBSD side launcher defined in `starter.tmpl`) is loca
 
 `chroot`wrapper script (Debian side launcher defined in `chroot-wrapper-*.tmpl`) is located on `/compat/debian/usr/local/bin/bsd-<browser>`
 
+chroot to debian shell directly (Run as root)
+```
+chroot /compat/debian /bin/bash
+```
+
+Run command inside chroot directly from freebsd shell
+```
+chroot /compat/debian (command)
+```
+
 [Firefox cli parameter list](https://firefox-source-docs.mozilla.org/browser/CommandLineParameters.html)
 
 [Chromium cli switch list](https://peter.sh/experiments/chromium-command-line-switches/)
