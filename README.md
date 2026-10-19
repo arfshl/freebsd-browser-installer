@@ -39,6 +39,7 @@ firefoxdevedition - Mozilla Firefox Developer Edition
 floorp - Floorp Browser
 librewolf - Librewolf
 opera - Opera Browser
+operagx - Opera GX
 vivaldi - Vivaldi Browser
 ```
 
@@ -100,7 +101,7 @@ variable(s) from `/etc/rc.conf`.
 
 FreeBSD desktop files is located on `/usr/local/share/applications/linux-<browser>`
 
-FreeBSD starter script (FreeBSD side launcher defined in starter.tmpl) is located on `/usr/local/bin/linux-<browser>`
+FreeBSD starter script (FreeBSD side launcher defined in `starter.tmpl`) is located on `/usr/local/bin/linux-<browser>`
 
 `chroot`wrapper script (Debian side launcher defined in `chroot-wrapper-*.tmpl`) is located on `/compat/debian/usr/local/bin/bsd-<browser>`
 
