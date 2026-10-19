@@ -95,3 +95,17 @@ desktop file.
 Before deleting the entire chroot under `$chroot_path`, this command
 unmounts all the chroot's filesystems, deletes the rc script, and removes its
 variable(s) from `/etc/rc.conf`.
+
+### Debugging
+
+FreeBSD desktop files is located on `/usr/local/share/applications/linux-<browser>`
+
+FreeBSD starter script (FreeBSD side launcher defined in starter.tmpl) is located on `/usr/local/bin/linux-<browser>`
+
+`chroot`wrapper script (Debian side launcher defined in `chroot-wrapper-*.tmpl`) is located on `/compat/debian/usr/local/bin/bsd-<browser>`
+
+[Firefox cli parameter list](https://firefox-source-docs.mozilla.org/browser/CommandLineParameters.html)
+
+[Chromium cli switch list](https://peter.sh/experiments/chromium-command-line-switches/)
+
+[Chromium cli parameter list](https://thorium.rocks/docs/cmdline_flags.html)

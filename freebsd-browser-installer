@@ -35,7 +35,7 @@ appsdir="${prefix}/share/applications"
 chroot_bindir="${chroot_path}/usr/local/bin"
 
 apt_packages="gnupg pulseaudio ca-certificates apt-transport-https curl sudo wget nano gawk"
-pkg_list="curl debootstrap pulseaudio debian-keyring"
+pkg_list="curl debootstrap pulseaudio debian-keyring nano gawk"
 
 export DEBIAN_FRONTEND=noninteractive
 export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
