@@ -32,7 +32,7 @@ debian_version=$(curl -s http://deb.debian.org/debian/dists/stable/Release | gre
 my_dir="$(dirname $(realpath $0))"
 bindir="${prefix}/bin"
 appsdir="${prefix}/share/applications"
-chroot_bindir="${chroot_path}/bin"
+chroot_bindir="${chroot_path}/usr/local/bin"
 
 apt_packages="gnupg pulseaudio ca-certificates apt-transport-https curl sudo wget nano gawk"
 pkg_list="curl debootstrap pulseaudio debian-keyring"
@@ -156,7 +156,7 @@ install_chroot_wrapper()
     local binary_path=$(get_chroot_binary_path ${browser_name})
     local binary_name=$(basename ${binary_path})
     local binary_dir=$(dirname ${binary_path})
-    local target=${chroot_bindir}/${browser_name}
+    local target=${chroot_bindir}/bsd-${browser_name}
     local tmpl_file
 
     [ -L ${target} ] && unlink ${target}
