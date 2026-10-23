@@ -218,8 +218,9 @@ uninstall_browser_files()
 install_chrome()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/google-chrome.gpg /etc/apt/sources.list.d/google-chrome.list'
     do_chroot 'curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg'
-    do_chroot 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
+    do_chroot 'echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list'
     do_chroot -i "apt update"
     do_chroot "apt install -y google-chrome-stable"
 }
@@ -227,11 +228,13 @@ install_chrome()
 uninstall_chrome()
 {
     do_chroot "apt remove -y google-chrome-stable"
+    do_chroot 'rm -f /etc/apt/keyrings/google-chrome.gpg /etc/apt/sources.list.d/google-chrome.list'
 }
 
 install_brave()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /usr/share/keyrings/brave-browser-archive-keyring.gpg /etc/apt/sources.list.d/brave-browser-release.sources'
     do_chroot 'curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg'
     do_chroot 'curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources'
     do_chroot -i "apt update"
@@ -241,11 +244,13 @@ install_brave()
 uninstall_brave()
 {
     do_chroot "apt remove -y brave-browser"
+    do_chroot 'rm -f /usr/share/keyrings/brave-browser-archive-keyring.gpg /etc/apt/sources.list.d/brave-browser-release.sources'
 }
 
 install_braveorigin()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /usr/share/keyrings/brave-browser-archive-keyring.gpg /etc/apt/sources.list.d/brave-browser-release.sources'
     do_chroot 'curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg'
     do_chroot 'curl -fsSLo /etc/apt/sources.list.d/brave-browser-release.sources https://brave-browser-apt-release.s3.brave.com/brave-browser.sources'
     do_chroot -i "apt update"
@@ -255,13 +260,15 @@ install_braveorigin()
 uninstall_braveorigin()
 {
     do_chroot "apt remove -y brave-origin"
+    do_chroot 'rm -f /usr/share/keyrings/brave-browser-archive-keyring.gpg /etc/apt/sources.list.d/brave-browser-release.sources'
 }
 
 install_vivaldi()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/vivaldi.gpg /etc/apt/sources.list.d/vivaldi.list'
     do_chroot 'curl -fsSL https://repo.vivaldi.com/archive/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/vivaldi.gpg'
-    do_chroot 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main" > /etc/apt/sources.list.d/vivaldi.list'
+    do_chroot 'echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/vivaldi.gpg] https://repo.vivaldi.com/archive/deb/ stable main" > /etc/apt/sources.list.d/vivaldi.list'
     do_chroot -i "apt update"
     do_chroot "apt install -y vivaldi-stable"
 }
@@ -269,11 +276,13 @@ install_vivaldi()
 uninstall_vivaldi()
 {
     do_chroot "apt remove -y vivaldi-stable"
+    do_chroot 'rm -f /etc/apt/keyrings/vivaldi.gpg /etc/apt/sources.list.d/vivaldi.list'
 }
 
 install_edge()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/microsoft.gpg /etc/apt/sources.list.d/microsoft-edge-stable.list'
     do_chroot 'curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/keyrings/microsoft.gpg'
     do_chroot 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-stable.list'
     do_chroot -i "apt update"
@@ -283,13 +292,15 @@ install_edge()
 uninstall_edge()
 {
     do_chroot "apt remove -y microsoft-edge-stable"
+    do_chroot 'rm -f /etc/apt/keyrings/microsoft.gpg /etc/apt/sources.list.d/microsoft-edge-stable.list'
 }
 
 install_opera()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/opera.gpg /etc/apt/sources.list.d/opera-stable.list'
     do_chroot 'curl -fsSL https://deb.opera.com/archive.key | gpg --dearmor -o /etc/apt/keyrings/opera.gpg'
-    do_chroot 'echo "deb [signed-by=/etc/apt/keyrings/opera.gpg] https://deb.opera.com/opera-stable/ stable non-free" > /etc/apt/sources.list.d/opera-stable.list'
+    do_chroot 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/opera.gpg] https://deb.opera.com/opera-stable/ stable non-free" > /etc/apt/sources.list.d/opera-stable.list'
     do_chroot -i "apt update"
     do_chroot "apt install -y opera-stable"
 }
@@ -297,13 +308,15 @@ install_opera()
 uninstall_opera()
 {
     do_chroot "apt remove -y opera-stable"
+    do_chroot 'rm -f /etc/apt/keyrings/opera.gpg /etc/apt/sources.list.d/opera-stable.list'
 }
 
 install_operagx()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/opera.gpg /etc/apt/sources.list.d/opera-gx-stable.list'
     do_chroot 'curl -fsSL https://deb.opera.com/archive.key | gpg --dearmor -o /etc/apt/keyrings/opera.gpg'
-    do_chroot 'echo "deb [signed-by=/etc/apt/keyrings/opera.gpg] https://deb.opera.com/opera-gx-stable/ stable non-free" > /etc/apt/sources.list.d/opera-gx-stable.list'
+    do_chroot 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/opera.gpg] https://deb.opera.com/opera-gx-stable/ stable non-free" > /etc/apt/sources.list.d/opera-gx-stable.list'
     do_chroot -i "apt update"
     do_chroot "apt install -y opera-gx-stable"
 }
@@ -311,13 +324,15 @@ install_operagx()
 uninstall_operagx()
 {
     do_chroot "apt remove -y opera-gx-stable"
+    do_chroot 'rm -f /etc/apt/keyrings/opera.gpg /etc/apt/sources.list.d/opera-gx-stable.list'
 }
 
 install_firefox()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/packages.mozilla.org.asc /etc/apt/sources.list.d/mozilla.list /etc/apt/preferences.d/mozilla'
     do_chroot 'curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o /etc/apt/keyrings/packages.mozilla.org.asc'
-    do_chroot 'echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
+    do_chroot 'echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
     do_chroot 'printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n" > /etc/apt/preferences.d/mozilla'
     do_chroot -i "apt update"
     do_chroot "apt install -y firefox"
@@ -326,13 +341,15 @@ install_firefox()
 uninstall_firefox()
 {
     do_chroot "apt remove -y firefox"
+    do_chroot 'rm -f /etc/apt/keyrings/packages.mozilla.org.asc /etc/apt/sources.list.d/mozilla.list /etc/apt/preferences.d/mozilla'
 }
 
 install_firefoxdevedition()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/packages.mozilla.org.asc /etc/apt/sources.list.d/mozilla.list /etc/apt/preferences.d/mozilla'
     do_chroot 'curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o /etc/apt/keyrings/packages.mozilla.org.asc'
-    do_chroot 'echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
+    do_chroot 'echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
     do_chroot 'printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n" > /etc/apt/preferences.d/mozilla'
     do_chroot -i "apt update"
     do_chroot "apt install -y firefox-devedition"
@@ -341,13 +358,15 @@ install_firefoxdevedition()
 uninstall_firefoxdevedition()
 {
     do_chroot "apt remove -y firefox-devedition"
+    do_chroot 'rm -f /etc/apt/keyrings/packages.mozilla.org.asc /etc/apt/sources.list.d/mozilla.list /etc/apt/preferences.d/mozilla'
 }
 
 install_firefoxesr()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
+    do_chroot 'rm -f /etc/apt/keyrings/packages.mozilla.org.asc /etc/apt/sources.list.d/mozilla.list /etc/apt/preferences.d/mozilla'
     do_chroot 'curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o /etc/apt/keyrings/packages.mozilla.org.asc'
-    do_chroot 'echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
+    do_chroot 'echo "deb [arch=amd64,arm64 signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" > /etc/apt/sources.list.d/mozilla.list'
     do_chroot 'printf "Package: *\nPin: origin packages.mozilla.org\nPin-Priority: 1000\n" > /etc/apt/preferences.d/mozilla'
     do_chroot -i "apt update"
     do_chroot "apt install -y firefox-esr"
@@ -356,12 +375,14 @@ install_firefoxesr()
 uninstall_firefoxesr()
 {
     do_chroot "apt remove -y firefox-esr"
+    do_chroot 'rm -f /etc/apt/keyrings/packages.mozilla.org.asc /etc/apt/sources.list.d/mozilla.list /etc/apt/preferences.d/mozilla'
 }
 
 install_floorp()
 {
     do_chroot 'install -d -m 0755 /etc/apt/keyrings'
     do_chroot 'install -d -m 0755 /usr/share/keyrings'
+    do_chroot 'rm -f /usr/share/keyrings/Floorp.gpg /etc/apt/sources.list.d/Floorp.list'
     do_chroot 'curl -fsSL https://ppa.floorp.app/KEY.gpg | gpg --dearmor -o /usr/share/keyrings/Floorp.gpg'
     do_chroot 'curl -sS --compressed -o /etc/apt/sources.list.d/Floorp.list "https://ppa.floorp.app/Floorp.list"'
     do_chroot -i "apt update"
@@ -371,6 +392,7 @@ install_floorp()
 uninstall_floorp()
 {
     do_chroot "apt remove -y floorp"
+    do_chroot 'rm -f /usr/share/keyrings/Floorp.gpg /etc/apt/sources.list.d/Floorp.list'
 }
 
 install_librewolf()
@@ -385,6 +407,8 @@ install_librewolf()
 uninstall_librewolf()
 {
     do_chroot "apt remove -y librewolf"
+    do_chroot "extrepo disable librewolf"
+    do_chroot 'rm -f /etc/apt/sources.list.d/extrepo_librewolf.sources /etc/apt/sources.list.d/librewolf.sources /var/lib/extrepo/keys/librewolf.asc'
 }
 
 install_widevine()
@@ -407,6 +431,8 @@ set_timezone()
     cp "/usr/share/zoneinfo/$(cat /var/db/zoneinfo)" \
        ${chroot_path}/etc/localtime
     do_chroot -i "dpkg-reconfigure --frontend noninteractive tzdata"
+    do_chroot -i "sed -i 's/^# \(en_US.UTF-8\)/\1/' /etc/locale.gen"
+    do_chroot -i "dpkg-reconfigure --frontend locales"
 }
 
 init_chroot_users()
